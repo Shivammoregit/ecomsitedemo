@@ -1,0 +1,116 @@
+{
+  "scraped_at": "2025-12-15 23:19:32",
+  "total_products": 10,
+  "products": [
+    {
+      "asin": "B08N5WRWNW",
+      "title": "Premium Dog Food - Grain Free Recipe for Adult Dogs",
+      "price": "$54.99",
+      "rating": "4.5 out of 5 stars",
+      "reviews": "12,847",
+      "image_url": "https://via.placeholder.com/300x300/4A90A4/FFFFFF?text=Dog+Food",
+      "product_url": "https://www.amazon.com/dp/B08N5WRWNW",
+      "search_query": "dog toys",
+      "demo_data": true
+    },
+    {
+      "asin": "B07D4F5KMN",
+      "title": "Interactive Dog Toy - Puzzle Feeder for Mental Stimulation",
+      "price": "$24.99",
+      "rating": "4.7 out of 5 stars",
+      "reviews": "8,234",
+      "image_url": "https://via.placeholder.com/300x300/FF6B6B/FFFFFF?text=Dog+Toy",
+      "product_url": "https://www.amazon.com/dp/B07D4F5KMN",
+      "search_query": "dog toys",
+      "demo_data": true
+    },
+    {
+      "asin": "B09XYZ1234",
+      "title": "Orthopedic Dog Bed - Memory Foam for Large Breeds",
+      "price": "$89.99",
+      "rating": "4.8 out of 5 stars",
+      "reviews": "5,621",
+      "image_url": "https://via.placeholder.com/300x300/7CB342/FFFFFF?text=Dog+Bed",
+      "product_url": "https://www.amazon.com/dp/B09XYZ1234",
+      "search_query": "dog toys",
+      "demo_data": true
+    },
+    {
+      "asin": "B01ABCDEFG",
+      "title": "Cat Tree Tower - Multi-Level with Scratching Posts",
+      "price": "$79.99",
+      "rating": "4.4 out of 5 stars",
+      "reviews": "15,892",
+      "image_url": "https://via.placeholder.com/300x300/9C27B0/FFFFFF?text=Cat+Tree",
+      "product_url": "https://www.amazon.com/dp/B01ABCDEFG",
+      "search_query": "dog toys",
+      "demo_data": true
+    },
+    {
+      "asin": "B08HIJKLMN",
+      "title": "Automatic Pet Water Fountain - 2L Capacity with Filter",
+      "price": "$32.99",
+      "rating": "4.6 out of 5 stars",
+      "reviews": "9,445",
+      "image_url": "https://via.placeholder.com/300x300/2196F3/FFFFFF?text=Water+Fountain",
+      "product_url": "https://www.amazon.com/dp/B08HIJKLMN",
+      "search_query": "dog toys",
+      "demo_data": true
+    },
+    {
+      "asin": "B07QRSTUV",
+      "title": "Pet Grooming Kit - Professional Clippers and Scissors Set",
+      "price": "$45.99",
+      "rating": "4.3 out of 5 stars",
+      "reviews": "3,287",
+      "image_url": "https://via.placeholder.com/300x300/FF9800/FFFFFF?text=Grooming+Kit",
+      "product_url": "https://www.amazon.com/dp/B07QRSTUV",
+      "search_query": "dog toys",
+      "demo_data": true
+    },
+    {
+      "asin": "B06WXYZ789",
+      "title": "Retractable Dog Leash - 26ft Heavy Duty for Large Dogs",
+      "price": "$28.99",
+      "rating": "4.2 out of 5 stars",
+      "reviews": "7,112",
+      "image_url": "https://via.placeholder.com/300x300/795548/FFFFFF?text=Dog+Leash",
+      "product_url": "https://www.amazon.com/dp/B06WXYZ789",
+      "search_query": "dog toys",
+      "demo_data": true
+    },
+    {
+      "asin": "B09MNOPQRS",
+      "title": "Cat Litter Box - Self-Cleaning Automatic with App Control",
+      "price": "$449.99",
+      "rating": "4.1 out of 5 stars",
+      "reviews": "2,156",
+      "image_url": "https://via.placeholder.com/300x300/607D8B/FFFFFF?text=Litter+Box",
+      "product_url": "https://www.amazon.com/dp/B09MNOPQRS",
+      "search_query": "dog toys",
+      "demo_data": true
+    },
+    {
+      "asin": "B08TUVWXYZ",
+      "title": "Pet Carrier Backpack - Airline Approved with Ventilation",
+      "price": "$59.99",
+      "rating": "4.5 out of 5 stars",
+      "reviews": "4,789",
+      "image_url": "https://via.placeholder.com/300x300/E91E63/FFFFFF?text=Pet+Carrier",
+      "product_url": "https://www.amazon.com/dp/B08TUVWXYZ",
+      "search_query": "dog toys",
+      "demo_data": true
+    },
+    {
+      "asin": "B07ABCD123",
+      "title": "Dog Training Treats - Natural Chicken Flavor 1lb Bag",
+      "price": "$15.99",
+      "rating": "4.7 out of 5 stars",
+      "reviews": "18,934",
+      "image_url": "https://via.placeholder.com/300x300/8BC34A/FFFFFF?text=Dog+Treats",
+      "product_url": "https://www.amazon.com/dp/B07ABCD123",
+      "search_query": "dog toys",
+      "demo_data": true
+    }
+  ]
+}
