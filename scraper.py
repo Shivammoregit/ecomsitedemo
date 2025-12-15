@@ -1,290 +1,307 @@
 """
-Amazon Product Scraper
-A simple scraper to fetch product data from Amazon search results.
-Great for learning Git version control!
+Web Scraper - Using Scraping-Friendly Sites
+Perfect for learning Git version control!
+
+This scraper uses sites that explicitly permit scraping:
+- books.toscrape.com - Fake bookstore for scraping practice
+- quotes.toscrape.com - Quotes database for scraping practice
+- scrapethissite.com - Sandbox for web scraping
 """
 
 import requests
 from bs4 import BeautifulSoup
 import json
 import time
-import random
 
-# Headers to mimic a real browser request
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Connection': 'keep-alive',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
 }
 
 
-def scrape_amazon_search(search_query, max_products=10):
+def scrape_books():
     """
-    Scrape Amazon search results for a given query.
-    
-    Args:
-        search_query: The product to search for
-        max_products: Maximum number of products to return
+    Scrape books from books.toscrape.com
+    This site is specifically made for scraping practice!
     
     Returns:
-        List of product dictionaries
+        List of book dictionaries
     """
-    # Format the search URL
-    search_url = f"https://www.amazon.com/s?k={search_query.replace(' ', '+')}"
-    
-    products = []
+    url = "https://books.toscrape.com/catalogue/page-2.html"
+    books = []
     
     try:
-        print(f"Searching Amazon for: {search_query}")
-        response = requests.get(search_url, headers=HEADERS, timeout=10)
+        print(f"Scraping: {url}")
+        response = requests.get(url, headers=HEADERS, timeout=10)
         
         if response.status_code != 200:
-            print(f"Failed to fetch page. Status code: {response.status_code}")
-            # Return demo data for practice purposes
-            return get_demo_data(search_query, max_products)
+            print(f"Failed with status: {response.status_code}")
+            return []
         
         soup = BeautifulSoup(response.content, 'html.parser')
+        book_items = soup.select('article.product_pod')
         
-        # Find product containers
-        product_cards = soup.select('div[data-component-type="s-search-result"]')
+        for item in book_items:
+            # Get title
+            title_elem = item.select_one('h3 a')
+            title = title_elem.get('title', '') if title_elem else 'No title'
+            
+            # Get price
+            price_elem = item.select_one('p.price_color')
+            price = price_elem.get_text(strip=True) if price_elem else 'N/A'
+            
+            # Get rating
+            rating_elem = item.select_one('p.star-rating')
+            rating_class = rating_elem.get('class', []) if rating_elem else []
+            rating_map = {'One': 1, 'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5}
+            rating = 0
+            for cls in rating_class:
+                if cls in rating_map:
+                    rating = rating_map[cls]
+                    break
+            
+            # Get image
+            img_elem = item.select_one('img')
+            image_url = url + img_elem.get('src', '') if img_elem else ''
+            
+            # Get product link
+            link_elem = item.select_one('h3 a')
+            product_url = url + 'catalogue/' + link_elem.get('href', '') if link_elem else ''
+            
+            # Get availability
+            avail_elem = item.select_one('p.availability')
+            availability = avail_elem.get_text(strip=True) if avail_elem else 'Unknown'
+            
+            books.append({
+                'title': title,
+                'price': price,
+                'rating': rating,
+                'rating_stars': '★' * rating + '☆' * (5 - rating),
+                'image_url': image_url,
+                'product_url': product_url,
+                'availability': availability,
+                'source': 'books.toscrape.com'
+            })
         
-        if not product_cards:
-            print("No products found, using demo data for Git practice")
-            return get_demo_data(search_query, max_products)
-        
-        for card in product_cards[:max_products]:
-            product = extract_product_data(card)
-            if product:
-                products.append(product)
-                
-        # Small delay to be respectful
-        time.sleep(random.uniform(1, 2))
+        print(f"Found {len(books)} books")
         
     except Exception as e:
-        print(f"Error during scraping: {e}")
-        print("Using demo data for Git practice")
-        return get_demo_data(search_query, max_products)
+        print(f"Error: {e}")
     
-    return products if products else get_demo_data(search_query, max_products)
+    return books
 
 
-def extract_product_data(card):
+def scrape_quotes():
     """
-    Extract product information from a search result card.
-    
-    Args:
-        card: BeautifulSoup element containing product info
+    Scrape quotes from quotes.toscrape.com
+    Another scraping-friendly practice site!
     
     Returns:
-        Dictionary with product data or None
+        List of quote dictionaries
     """
+    url = "https://quotes.toscrape.com/"
+    quotes = []
+    
     try:
-        # Get ASIN (Amazon's product ID)
-        asin = card.get('data-asin', '')
+        print(f"Scraping: {url}")
+        response = requests.get(url, headers=HEADERS, timeout=10)
         
-        # Get title
-        title_elem = card.select_one('h2 a span')
-        title = title_elem.get_text(strip=True) if title_elem else 'No title'
+        if response.status_code != 200:
+            print(f"Failed with status: {response.status_code}")
+            return []
         
-        # Get price
-        price_whole = card.select_one('span.a-price-whole')
-        price_fraction = card.select_one('span.a-price-fraction')
-        if price_whole:
-            price = price_whole.get_text(strip=True).replace(',', '')
-            if price_fraction:
-                price += price_fraction.get_text(strip=True)
-            price = f"${price}"
-        else:
-            price = 'Price not available'
+        soup = BeautifulSoup(response.content, 'html.parser')
+        quote_divs = soup.select('div.quote')
         
-        # Get rating
-        rating_elem = card.select_one('span.a-icon-alt')
-        rating = rating_elem.get_text(strip=True) if rating_elem else 'No rating'
+        for item in quote_divs:
+            # Get quote text
+            text_elem = item.select_one('span.text')
+            text = text_elem.get_text(strip=True) if text_elem else ''
+            
+            # Get author
+            author_elem = item.select_one('small.author')
+            author = author_elem.get_text(strip=True) if author_elem else 'Unknown'
+            
+            # Get tags
+            tag_elems = item.select('a.tag')
+            tags = [tag.get_text(strip=True) for tag in tag_elems]
+            
+            quotes.append({
+                'text': text,
+                'author': author,
+                'tags': tags,
+                'source': 'quotes.toscrape.com'
+            })
         
-        # Get review count
-        review_elem = card.select_one('span.a-size-base.s-underline-text')
-        reviews = review_elem.get_text(strip=True) if review_elem else '0'
-        
-        # Get image URL
-        img_elem = card.select_one('img.s-image')
-        image_url = img_elem.get('src', '') if img_elem else ''
-        
-        # Get product URL
-        link_elem = card.select_one('h2 a')
-        product_url = 'https://www.amazon.com' + link_elem.get('href', '') if link_elem else ''
-        
-        return {
-            'asin': asin,
-            'title': title[:100] + '...' if len(title) > 100 else title,
-            'price': price,
-            'rating': rating,
-            'reviews': reviews,
-            'image_url': image_url,
-            'product_url': product_url
-        }
+        print(f"Found {len(quotes)} quotes")
         
     except Exception as e:
-        print(f"Error extracting product: {e}")
-        return None
-
-
-def get_demo_data(search_query, count=10):
-    """
-    Generate demo product data for Git practice.
-    This ensures you always have data to work with.
+        print(f"Error: {e}")
     
-    Args:
-        search_query: The search term used
-        count: Number of demo products to generate
+    return quotes
+
+
+def scrape_hockey_teams():
+    """
+    Scrape hockey team stats from scrapethissite.com
+    A sandbox site for web scraping practice!
     
     Returns:
-        List of demo product dictionaries
+        List of team dictionaries
     """
-    demo_products = [
-        {
-            'asin': 'B08N5WRWNW',
-            'title': 'Premium Dog Food - Grain Free Recipe for Adult Dogs',
-            'price': '$54.99',
-            'rating': '4.5 out of 5 stars',
-            'reviews': '12,847',
-            'image_url': 'https://via.placeholder.com/300x300/4A90A4/FFFFFF?text=Dog+Food',
-            'product_url': 'https://www.amazon.com/dp/B08N5WRWNW'
-        },
-        {
-            'asin': 'B07D4F5KMN',
-            'title': 'Interactive Dog Toy - Puzzle Feeder for Mental Stimulation',
-            'price': '$24.99',
-            'rating': '4.7 out of 5 stars',
-            'reviews': '8,234',
-            'image_url': 'https://via.placeholder.com/300x300/FF6B6B/FFFFFF?text=Dog+Toy',
-            'product_url': 'https://www.amazon.com/dp/B07D4F5KMN'
-        },
-        {
-            'asin': 'B09XYZ1234',
-            'title': 'Orthopedic Dog Bed - Memory Foam for Large Breeds',
-            'price': '$89.99',
-            'rating': '4.8 out of 5 stars',
-            'reviews': '5,621',
-            'image_url': 'https://via.placeholder.com/300x300/7CB342/FFFFFF?text=Dog+Bed',
-            'product_url': 'https://www.amazon.com/dp/B09XYZ1234'
-        },
-        {
-            'asin': 'B01ABCDEFG',
-            'title': 'Cat Tree Tower - Multi-Level with Scratching Posts',
-            'price': '$79.99',
-            'rating': '4.4 out of 5 stars',
-            'reviews': '15,892',
-            'image_url': 'https://via.placeholder.com/300x300/9C27B0/FFFFFF?text=Cat+Tree',
-            'product_url': 'https://www.amazon.com/dp/B01ABCDEFG'
-        },
-        {
-            'asin': 'B08HIJKLMN',
-            'title': 'Automatic Pet Water Fountain - 2L Capacity with Filter',
-            'price': '$32.99',
-            'rating': '4.6 out of 5 stars',
-            'reviews': '9,445',
-            'image_url': 'https://via.placeholder.com/300x300/2196F3/FFFFFF?text=Water+Fountain',
-            'product_url': 'https://www.amazon.com/dp/B08HIJKLMN'
-        },
-        {
-            'asin': 'B07QRSTUV',
-            'title': 'Pet Grooming Kit - Professional Clippers and Scissors Set',
-            'price': '$45.99',
-            'rating': '4.3 out of 5 stars',
-            'reviews': '3,287',
-            'image_url': 'https://via.placeholder.com/300x300/FF9800/FFFFFF?text=Grooming+Kit',
-            'product_url': 'https://www.amazon.com/dp/B07QRSTUV'
-        },
-        {
-            'asin': 'B06WXYZ789',
-            'title': 'Retractable Dog Leash - 26ft Heavy Duty for Large Dogs',
-            'price': '$28.99',
-            'rating': '4.2 out of 5 stars',
-            'reviews': '7,112',
-            'image_url': 'https://via.placeholder.com/300x300/795548/FFFFFF?text=Dog+Leash',
-            'product_url': 'https://www.amazon.com/dp/B06WXYZ789'
-        },
-        {
-            'asin': 'B09MNOPQRS',
-            'title': 'Cat Litter Box - Self-Cleaning Automatic with App Control',
-            'price': '$449.99',
-            'rating': '4.1 out of 5 stars',
-            'reviews': '2,156',
-            'image_url': 'https://via.placeholder.com/300x300/607D8B/FFFFFF?text=Litter+Box',
-            'product_url': 'https://www.amazon.com/dp/B09MNOPQRS'
-        },
-        {
-            'asin': 'B08TUVWXYZ',
-            'title': 'Pet Carrier Backpack - Airline Approved with Ventilation',
-            'price': '$59.99',
-            'rating': '4.5 out of 5 stars',
-            'reviews': '4,789',
-            'image_url': 'https://via.placeholder.com/300x300/E91E63/FFFFFF?text=Pet+Carrier',
-            'product_url': 'https://www.amazon.com/dp/B08TUVWXYZ'
-        },
-        {
-            'asin': 'B07ABCD123',
-            'title': 'Dog Training Treats - Natural Chicken Flavor 1lb Bag',
-            'price': '$15.99',
-            'rating': '4.7 out of 5 stars',
-            'reviews': '18,934',
-            'image_url': 'https://via.placeholder.com/300x300/8BC34A/FFFFFF?text=Dog+Treats',
-            'product_url': 'https://www.amazon.com/dp/B07ABCD123'
-        }
-    ]
+    url = "https://www.scrapethissite.com/pages/forms/?page_num=15"
+    teams = []
     
-    # Add search context to demo data
-    for i, product in enumerate(demo_products[:count]):
-        product['search_query'] = search_query
-        product['demo_data'] = True
+    try:
+        print(f"Scraping: {url}")
+        response = requests.get(url, headers=HEADERS, timeout=10)
+        
+        if response.status_code != 200:
+            print(f"Failed with status: {response.status_code}")
+            return []
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        team_rows = soup.select('tr.team')
+        
+        for row in team_rows[:15]:  # Limit to 15 teams
+            name_elem = row.select_one('td.name')
+            name = name_elem.get_text(strip=True) if name_elem else 'Unknown'
+            
+            year_elem = row.select_one('td.year')
+            year = year_elem.get_text(strip=True) if year_elem else 'N/A'
+            
+            wins_elem = row.select_one('td.wins')
+            wins = wins_elem.get_text(strip=True) if wins_elem else '0'
+            
+            losses_elem = row.select_one('td.losses')
+            losses = losses_elem.get_text(strip=True) if losses_elem else '0'
+            
+            goals_for_elem = row.select_one('td.gf')
+            goals_for = goals_for_elem.get_text(strip=True) if goals_for_elem else '0'
+            
+            goals_against_elem = row.select_one('td.ga')
+            goals_against = goals_against_elem.get_text(strip=True) if goals_against_elem else '0'
+            
+            teams.append({
+                'name': name,
+                'year': year,
+                'wins': int(wins) if wins.isdigit() else 0,
+                'losses': int(losses) if losses.isdigit() else 0,
+                'goals_for': int(goals_for) if goals_for.isdigit() else 0,
+                'goals_against': int(goals_against) if goals_against.isdigit() else 0,
+                'source': 'scrapethissite.com'
+            })
+        
+        print(f"Found {len(teams)} teams")
+        
+    except Exception as e:
+        print(f"Error: {e}")
     
-    return demo_products[:count]
+    return teams
 
 
-def save_to_json(products, filename='products.json'):
-    """
-    Save scraped products to a JSON file.
-    
-    Args:
-        products: List of product dictionaries
-        filename: Output filename
-    """
+def save_to_json(data, filename='products.json'):
+    """Save scraped data to JSON file."""
     output = {
         'scraped_at': time.strftime('%Y-%m-%d %H:%M:%S'),
-        'total_products': len(products),
-        'products': products
+        'total_items': len(data.get('books', [])) + len(data.get('quotes', [])) + len(data.get('teams', [])),
+        **data
     }
     
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
     
-    print(f"Saved {len(products)} products to {filename}")
+    print(f"\nSaved data to {filename}")
+
+
+def get_demo_books():
+    """Demo book data as fallback."""
+    return [
+        {'title': 'A Light in the Attic', 'price': '£51.77', 'rating': 3, 'rating_stars': '★★★☆☆', 'image_url': 'https://books.toscrape.com/media/cache/fe/72/fe72f0532f7b29c882b4a4c5e3a9b6e5.jpg', 'product_url': '#', 'availability': 'In stock', 'source': 'demo'},
+        {'title': 'Tipping the Velvet', 'price': '£53.74', 'rating': 1, 'rating_stars': '★☆☆☆☆', 'image_url': 'https://books.toscrape.com/media/cache/08/e9/08e94f3731d7d6b760dfbfbc02ca5c62.jpg', 'product_url': '#', 'availability': 'In stock', 'source': 'demo'},
+        {'title': 'Soumission', 'price': '£50.10', 'rating': 1, 'rating_stars': '★☆☆☆☆', 'image_url': 'https://books.toscrape.com/media/cache/ee/cf/eecf883a3cd4a5a5b tried.jpg', 'product_url': '#', 'availability': 'In stock', 'source': 'demo'},
+        {'title': 'Sharp Objects', 'price': '£47.82', 'rating': 4, 'rating_stars': '★★★★☆', 'image_url': 'https://via.placeholder.com/200x250/3498db/fff?text=Sharp+Objects', 'product_url': '#', 'availability': 'In stock', 'source': 'demo'},
+        {'title': 'Sapiens: A Brief History', 'price': '£54.23', 'rating': 5, 'rating_stars': '★★★★★', 'image_url': 'https://via.placeholder.com/200x250/9b59b6/fff?text=Sapiens', 'product_url': '#', 'availability': 'In stock', 'source': 'demo'},
+        {'title': 'The Requiremnts', 'price': '£22.65', 'rating': 5, 'rating_stars': '★★★★★', 'image_url': 'https://via.placeholder.com/200x250/e74c3c/fff?text=Requirements', 'product_url': '#', 'availability': 'In stock', 'source': 'demo'},
+        {'title': 'Mesaerism', 'price': '£33.45', 'rating': 3, 'rating_stars': '★★★☆☆', 'image_url': 'https://via.placeholder.com/200x250/2ecc71/fff?text=Mesmerism', 'product_url': '#', 'availability': 'In stock', 'source': 'demo'},
+        {'title': 'Olio', 'price': '£23.88', 'rating': 4, 'rating_stars': '★★★★☆', 'image_url': 'https://via.placeholder.com/200x250/f39c12/fff?text=Olio', 'product_url': '#', 'availability': 'In stock', 'source': 'demo'},
+    ]
+
+
+def get_demo_quotes():
+    """Demo quote data as fallback."""
+    return [
+        {'text': '"The world as we have created it is a process of our thinking. It cannot be changed without changing our thinking."', 'author': 'Albert Einstein', 'tags': ['change', 'deep-thoughts', 'thinking', 'world'], 'source': 'demo'},
+        {'text': '"It is our choices, Harry, that show what we truly are, far more than our abilities."', 'author': 'J.K. Rowling', 'tags': ['abilities', 'choices'], 'source': 'demo'},
+        {'text': '"There are only two ways to live your life. One is as though nothing is a miracle. The other is as though everything is a miracle."', 'author': 'Albert Einstein', 'tags': ['inspirational', 'life', 'live', 'miracle'], 'source': 'demo'},
+        {'text': '"The person, be it gentleman or lady, who has not pleasure in a good novel, must be intolerably stupid."', 'author': 'Jane Austen', 'tags': ['aliteracy', 'books', 'classic', 'humor'], 'source': 'demo'},
+        {'text': '"Imperfection is beauty, madness is genius and it\'s better to be absolutely ridiculous than absolutely boring."', 'author': 'Marilyn Monroe', 'tags': ['be-yourself', 'inspirational'], 'source': 'demo'},
+        {'text': '"Try not to become a man of success. Rather become a man of value."', 'author': 'Albert Einstein', 'tags': ['adulthood', 'success', 'value'], 'source': 'demo'},
+        {'text': '"It is better to be hated for what you are than to be loved for what you are not."', 'author': 'André Gide', 'tags': ['life', 'love'], 'source': 'demo'},
+        {'text': '"I have not failed. I\'ve just found 10,000 ways that won\'t work."', 'author': 'Thomas A. Edison', 'tags': ['edison', 'failure', 'inspirational'], 'source': 'demo'},
+    ]
+
+
+def get_demo_teams():
+    """Demo hockey team data as fallback."""
+    return [
+        {'name': 'Boston Bruins', 'year': '1990', 'wins': 44, 'losses': 24, 'goals_for': 299, 'goals_against': 264, 'source': 'demo'},
+        {'name': 'Buffalo Sabres', 'year': '1990', 'wins': 31, 'losses': 30, 'goals_for': 292, 'goals_against': 278, 'source': 'demo'},
+        {'name': 'Calgary Flames', 'year': '1990', 'wins': 46, 'losses': 26, 'goals_for': 344, 'goals_against': 263, 'source': 'demo'},
+        {'name': 'Chicago Blackhawks', 'year': '1990', 'wins': 49, 'losses': 23, 'goals_for': 284, 'goals_against': 211, 'source': 'demo'},
+        {'name': 'Detroit Red Wings', 'year': '1990', 'wins': 34, 'losses': 38, 'goals_for': 273, 'goals_against': 298, 'source': 'demo'},
+        {'name': 'Edmonton Oilers', 'year': '1990', 'wins': 37, 'losses': 37, 'goals_for': 272, 'goals_against': 272, 'source': 'demo'},
+        {'name': 'Hartford Whalers', 'year': '1990', 'wins': 31, 'losses': 38, 'goals_for': 238, 'goals_against': 276, 'source': 'demo'},
+        {'name': 'Los Angeles Kings', 'year': '1990', 'wins': 46, 'losses': 24, 'goals_for': 340, 'goals_against': 254, 'source': 'demo'},
+        {'name': 'Minnesota North Stars', 'year': '1990', 'wins': 27, 'losses': 39, 'goals_for': 256, 'goals_against': 266, 'source': 'demo'},
+        {'name': 'Montreal Canadiens', 'year': '1990', 'wins': 39, 'losses': 30, 'goals_for': 273, 'goals_against': 249, 'source': 'demo'},
+    ]
 
 
 def main():
-    """Main function to run the scraper."""
-    # Default search for pet products (relevant to your marketplace!)
-    search_query = "dog toys"
-    
+    """Main function to run all scrapers."""
     print("=" * 50)
-    print("Amazon Product Scraper")
+    print("Web Scraper - Scraping-Friendly Sites")
     print("Perfect for Git Practice!")
-    print("=" * 50)
+    print("=" * 50 + "\n")
     
-    # Scrape products
-    products = scrape_amazon_search(search_query, max_products=10)
+    # Scrape all sources
+    books = scrape_books()
+    print()
+    
+    quotes = scrape_quotes()
+    print()
+    
+    teams = scrape_hockey_teams()
+    
+    # Use demo data if scraping failed
+    if not books:
+        print("Using demo book data...")
+        books = get_demo_books()
+    if not quotes:
+        print("Using demo quote data...")
+        quotes = get_demo_quotes()
+    if not teams:
+        print("Using demo team data...")
+        teams = get_demo_teams()
+    
+    # Combine all data
+    all_data = {
+        'books': books,
+        'quotes': quotes,
+        'teams': teams
+    }
     
     # Save to JSON
-    save_to_json(products)
+    save_to_json(all_data)
     
-    # Print summary
+    # Summary
     print("\n" + "=" * 50)
-    print(f"Scraped {len(products)} products")
-    print("Data saved to products.json")
-    print("Open index.html in your browser to view results!")
+    print("SCRAPING COMPLETE!")
+    print(f"  📚 Books: {len(books)}")
+    print(f"  💬 Quotes: {len(quotes)}")
+    print(f"  🏒 Hockey Teams: {len(teams)}")
     print("=" * 50)
+    print("\nOpen index.html in your browser to view results!")
 
 
 if __name__ == '__main__':
